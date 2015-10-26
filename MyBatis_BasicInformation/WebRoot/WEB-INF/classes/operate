@@ -1,0 +1,87 @@
+
+	public static void main(String[] args) throws IOException {
+		
+		String resource = "mybatis-config.xml"; //主配置
+		//从classpath路径下加载
+		InputStream inputStream = Resources.getResourceAsStream(resource);
+		
+		//核心对象
+		SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+		
+		//创建会话对象
+		SqlSession session = sqlSessionFactory.openSession();
+	
+		//----------------------------------------
+		//根据id查询一个对象
+		//User user = session.selectOne("selectUser",2);
+		
+		//登录验证查询
+		/*User user = new User();
+		user.setUsername("admin");
+		user.setPassword("admin");*/
+		/*Map<String,String> map = new HashMap<String,String>();
+		map.put("username","admin123");
+		map.put("password","admin");
+		User user = session.selectOne("selectUserLogin", map);*/
+		
+		//分页查询
+		int pageno = 3 ;
+		int pagesize = 2 ;
+		int startIndex = (pageno-1)*pagesize ; //  0   2   4
+		/*
+		Map<String,Integer> map = new HashMap<String,Integer>();
+		map.put("startIndex", startIndex );
+		map.put("pagesize", pagesize );
+
+		List<User> userList = session.selectList("selectUserPage", map);
+		for(User user : userList){
+			System.out.println(user.getId() +" - " +user.getUsername() +" - " + user.getRegdate());
+		}*/
+		
+		/*Integer totalsize = session.selectOne("selectUserCount");
+		System.out.println(totalsize);*/
+		
+		/*int totalpage = 0 ;
+		int temp = totalsize%pagesize ;
+		if(temp==0){
+			totalpage =  totalsize/pagesize ;
+		}else{
+			totalpage =  totalsize/pagesize + 1 ;
+		}*/
+		
+		
+		//添加用户
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String nowTime = sdf.format(new Date());
+		
+		User user = new User();
+		user.setUsername("tom");
+		user.setPassword("123");
+		user.setRegdate(nowTime);
+		user.setOrgid(1);
+		
+		session.insert("insertUser", user);
+		
+		//更新用户
+		/*User user = new User();
+		user.setId(14);
+		user.setUsername("tom123");
+		user.setPassword("123456");
+		//user.setRegdate(nowTime); //注册时间不需要修改
+		user.setOrgid(1);
+		
+		session.update("updateUser", user);*/
+
+		
+		//删除对象
+		/*User user = new User();
+		user.setId(14);
+		session.delete("deleteUser", user);*/
+		
+		session.commit();//DML必须手动提交事务。
+		
+		//----------------------------------------
+		session.close();
+
+
+}

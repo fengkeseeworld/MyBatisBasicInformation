@@ -1,0 +1,142 @@
+		
+		
+		
+		使用MyBatis的基本步骤：
+		
+		
+				1)  创建基本的web工程
+				
+				
+				2）    引入基本的mybatis的包
+						mybatis-3.2.1.jar
+						
+						
+				3）    创建核心的配置文件：
+						mybatis-config.xml
+						内容：
+								<?xml version="1.0" encoding="UTF-8" ?>
+								<!DOCTYPE configuration
+								  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+								  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+								<configuration>
+									<!-- 加载属性配置文件：获取数据库连接信息 -->
+									<properties resource="fengke/study/config/jdbc.properties"></properties>
+									<environments default="development">
+										<!-- 环境配置 -->
+										<environment id="development">
+										<!-- 
+											type="JDBC" 表示采用JDBC方式管理事务
+												con.setAutoCommit(false);				
+												con.commit();提交
+												con.rollback();回滚
+											type="MANAGED" 表示容器管理事务	
+											-->			
+											<transactionManager type="JDBC" />
+											<!-- 数据源：连接池管理连接 -->
+											<dataSource type="POOLED">
+												<property name="driver" value="${driverClassName}" />
+												<property name="url" value="${url}" />
+												<property name="username" value="${uname}" />
+												<property name="password" value="${pswd}" />
+											</dataSource>
+										</environment>
+									</environments>
+									<!-- 映射文件 -->
+									<mappers>
+									<!-- 注意写绝对路径 -->
+										<mapper resource="fengke/study/config/mapper-user.xml" />
+									</mappers>
+								</configuration>
+
+
+									
+									
+			4）		创建用户数据库的数据文件
+							jdbc.properties
+							内容：
+								driverClassName=com.mysql.jdbc.Driver
+								url=jdbc:mysql://localhost:3306/test
+								uname=root
+								pswd=root
+								
+			
+			5）		创建数据库的映射文件
+							mapper-user.xml
+							 内容：
+							 	<?xml version="1.0" encoding="UTF-8" ?>
+								<!DOCTYPE mapper
+								  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+								  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+								<mapper namespace="test">
+								<!--对应数据库中的表，如果不对应，则实体类的属性必须和字段一样-->
+								<!--
+								<resultMap type="" id="">
+								<id coloum="eid" jdbcType="INTEGET" property="eid"/>
+								<result column"ename" jdbcType="VARCHAR" property="ename"/>
+								</resultMap>
+								-->
+
+								<!-- 查询语句不应该出现*，要查什么数据就输入什么，否则系统会再次解释*，不利于程序 -->
+									<!-- 查询某一个对象 -->
+									<select id="selectUser" resultType="fengke.study.bean.User">
+										select eid,ename,esex,eage,ehobby,depid from emp where eid = #{id}
+									</select>
+								</mapper>
+								
+								
+			6）		测试环境是否可是使用
+							Test.java
+							package fengke.study;
+							import java.io.IOException;
+							import java.io.Reader;
+							import org.apache.ibatis.io.Resources;
+							import org.apache.ibatis.session.SqlSession;
+							import org.apache.ibatis.session.SqlSessionFactory;
+							import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+							import fengke.study.bean.User;
+							/**
+							 * 测试
+							 * @author 锋客
+							 *	主要内容：
+							 *	1.获取sqlsession的两种方式：reader，inputstream
+							 *	2.获取sqlsession的步骤：
+							 *						获取核心的配置文件；
+							 *						创建SqlSessionFactory；
+							 *						开启SqlSession；
+							 *						测试内容；
+							 *						关闭SqlSession；
+							 */
+							public class Test {
+							
+								public static void main(String[] args) throws IOException {
+									//-------------------------获取sqlsession的方法--------------------------
+									//核心配置文件的地址（连接数据库，配置数据库映射的文件）
+									String loaction="fengke/study/config/mybatis-config.xml";
+									//读取核心配置文件的第一种方法
+									Reader reader=Resources.getResourceAsReader(loaction);
+									//读取核心配置文件的第二种方法
+									//InputStream reader = Resources.getResourceAsStream(loaction);
+									//创建一个SqlSessionFactory
+									SqlSessionFactory factory=new SqlSessionFactoryBuilder().build(reader);
+									//通过SqlSessionFactory打开一个SqlSession
+									SqlSession sqlSession=factory.openSession();
+									//--------------------------------------------------------------------
+									//测试配置是否成功
+									User temp=sqlSession.selectOne("selectUser", 1);
+									System.out.println(temp.toString());
+									sqlSession.close();
+									
+								}
+							}
+			7）		完成环境的搭配
+
+			注意事项：实体类必须实现import java.io.Serializable接口，否则无法找见实体类
+							
+					
+			
+			
+			
+			
+			
+						
+				
